@@ -34,6 +34,19 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Set app icon
+        run: |
+          sudo apt-get install -y imagemagick
+          RES=android/app/src/main/res
+          rm -rf $RES/mipmap-anydpi-v26
+          for pair in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
+            d=${pair%%:*}
+            s=${pair##*:}
+            for n in ic_launcher ic_launcher_round ic_launcher_foreground; do
+              convert icon-512x512.png -resize ${s}x${s} $RES/mipmap-$d/$n.png
+            done
+          done
+
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug

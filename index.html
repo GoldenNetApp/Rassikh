@@ -789,8 +789,9 @@
 
 <!-- HOME SCREEN -->
 <div id="home-screen">
-  <div class="home-title">راسخ</div>
-  <div class="home-subtitle">تنظيم سير الحفظ والمراجعة الدورية<br><span style="font-size:12px;color:#ffffff;opacity:0.75;">تعاهد القرآن ليرسخ حفظك وكن كثير التوبة والاستغفار</span></div>
+  <div class="home-title" style="margin-bottom:2px;">راسخ</div>
+  <div class="home-subtitle" style="margin-bottom:0;color:var(--gold);">تنظيم سير الحفظ والمراجعة الدورية<span style="display:block;margin-top:-1px;line-height:1.3;font-size:12px;color:#ffffff;opacity:0.75;">تعاهد القرآن ليرسخ حفظك وكن كثير التوبة والاستغفار</span></div>
+  <div class="motivational-card" id="home-motivation" style="width:100%;max-width:360px;margin:2px 0 8px;padding:8px 14px;display:none;"><div class="motivational-text" id="home-motivation-text" style="line-height:1.6;"></div></div>
 
   <!-- كيف يعمل التطبيق (دائماً الأولى) ثم ورد اليوم، وتحتهما «احفظ الآن» -->
   <div class="home-cards" style="margin-bottom:8px;">
@@ -985,8 +986,8 @@
             <strong style="color:var(--green);">المتين</strong> — فيه بعض الأخطاء والتردد.<br>
             <strong style="color:#f85149;">الضعيف</strong> — فيه أخطاء كثيرة.<br>
             <strong style="color:#60a5fa;">الجديد</strong> — ما تم حفظه مؤخراً.<br><br>
-            <strong>*</strong> إذا كان لديك أكثر من 3 أرباع حفظها ضعيف ومتفلّت فاعتبرها كلها غير محفوظة، وأعد حفظها من جديد.<br>
-            أما <strong style="color:#60a5fa;">الجديد</strong> فهو آخر ربع أو ربعين تم حفظهما مؤخراً بشكل جيد.
+            <strong>*</strong> إذا كان لديك أكثر من 3 أرباع حفظها ضعيف ومتفلّت فاعتبرها كلها غير محفوظة لأنها ستتعبك، والأحسن إعادة حفظها من جديد وستجد أن حفظها سهل وميسر ليس كأول مرة.<br>
+            أما <strong style="color:#60a5fa;">الجديد</strong> فهو آخر ما تم حفظه وتسميعه بشكل جيد في آخر عشر أيام من يومك الحالي.
           </div>
         </div>
         <div class="guide-step">
@@ -1071,7 +1072,7 @@
       <span><strong>⏱️ الانتقال التلقائي:</strong> تحدّد عدد الأيام التي تحتاجها لحفظ الربع (من 1 إلى 7)، فإذا انتهت المدة انتقل التطبيق وحده إلى أول ربع لم تحفظه، ويُضاف الربع الذي أتممته إلى المراجعة كحفظ جديد. ويمكنك الضغط على "تم الحفظ" قبل انتهاء المدة لتنتقل فوراً.</span>
     </div>
     <div class="quran-guide-row" style="margin-top:10px;">
-      <span><strong>✋ الانتقال اليدوي:</strong> لا ينتقل التطبيق من نفسه مهما طالت المدة، ويكتفي بعدّ الأيام التي مرّت عليك في حفظ الربع. وعند إتمامه اضغط "تم الحفظ" ثم اختر الربع التالي بنفسك من هذه القائمة، وهو مناسب إذا كنت تحفظ بترتيب خاص أو بإيقاع غير ثابت.</span>
+      <span><strong>✋ الانتقال اليدوي:</strong> لا ينتقل التطبيق من نفسه مهما طالت المدة، ويكتفي بعدّ الأيام التي مرّت عليك في حفظ الربع. وعند إتمامه اضغط "تم الحفظ" فتظهر تهنئة مع زر «حدّده الآن» لتختار الربع التالي بنفسك، وإن لم تحدّده اليوم ظهرت من الغد بطاقة «لم تحدّد ربعاً جديداً»، وهو مناسب إذا كنت تحفظ بترتيب خاص أو بإيقاع غير ثابت.</span>
     </div>
   </div>
   <button class="done-btn" style="width:100%;margin-bottom:14px;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#000;" id="all-done-btn" onclick="askAllQuartersDone()">🏆 أتممت حفظ كل الأرباع</button>
@@ -1273,11 +1274,11 @@
     <div class="setting-row">
       <div>
         <div class="setting-label">⏱️ مدة مراجعة الربع الواحد</div>
-        <div class="setting-desc">لتقدير الوقت الذي تحتاجه لورد اليوم (من 5 إلى 20 دقيقة) — يظهر في الواجهة الرئيسية، ويُطبَّق فوراً</div>
+        <div class="setting-desc">لتقدير الوقت الذي تحتاجه لورد اليوم (من 2 إلى 20 دقيقة) — يظهر في الواجهة الرئيسية، ويُطبَّق فوراً</div>
       </div>
       <div class="number-input">
         <button class="num-btn" onclick="changeReviewMin(-1)">−</button>
-        <input type="number" inputmode="numeric" id="review-min-val" class="num-val" value="10" min="5" max="20" oninput="reviewMinInputChanged(this,false)" onchange="reviewMinInputChanged(this,true)" onblur="reviewMinInputChanged(this,true)" style="width:52px;background:transparent;border:none;outline:none;text-align:center;font-size:18px;font-weight:700;color:var(--gold);font-family:'Tajawal',sans-serif;">
+        <input type="number" inputmode="numeric" id="review-min-val" class="num-val" value="8" min="2" max="20" oninput="reviewMinInputChanged(this,false)" onchange="reviewMinInputChanged(this,true)" onblur="reviewMinInputChanged(this,true)" style="width:52px;background:transparent;border:none;outline:none;text-align:center;font-size:18px;font-weight:700;color:var(--gold);font-family:'Tajawal',sans-serif;">
         <button class="num-btn" onclick="changeReviewMin(1)">+</button>
       </div>
     </div>
@@ -1288,7 +1289,7 @@
       </div>
       <div class="number-input">
         <button class="num-btn" onclick="changeMemMin(-5)">−</button>
-        <input type="number" inputmode="numeric" id="mem-min-val" class="num-val" value="30" min="10" max="120" oninput="memMinInputChanged(this,false)" onchange="memMinInputChanged(this,true)" onblur="memMinInputChanged(this,true)" style="width:52px;background:transparent;border:none;outline:none;text-align:center;font-size:18px;font-weight:700;color:var(--gold);font-family:'Tajawal',sans-serif;">
+        <input type="number" inputmode="numeric" id="mem-min-val" class="num-val" value="25" min="10" max="120" oninput="memMinInputChanged(this,false)" onchange="memMinInputChanged(this,true)" onblur="memMinInputChanged(this,true)" style="width:52px;background:transparent;border:none;outline:none;text-align:center;font-size:18px;font-weight:700;color:var(--gold);font-family:'Tajawal',sans-serif;">
         <button class="num-btn" onclick="changeMemMin(5)">+</button>
       </div>
     </div>
@@ -1296,7 +1297,7 @@
 
   <div class="settings-section" id="tilawa-settings">
     <h3>📗 ورد التلاوة (حزب نظراً يومياً)</h3>
-    <div class="setting-desc" style="margin-bottom:10px;line-height:1.8;">تقرأ كل يوم من نصف حزب إلى 5 أحزاب نظراً، يظهر في ورد اليوم، وينتقل للتالي بعد أن تضغط «تم؟» ثم تنهي يومك. كل حزب يستغرق نحو 15 دقيقة.</div>
+    <div class="setting-desc" style="margin-bottom:10px;line-height:1.8;">تقرأ كل يوم نظرًا من المصحف وِردًا محددًا لتتم ختمة كاملة مستقلة لا علاقة لها بالمراجعة والحفظ الجديد، وتختار المقدار اليومي حسب طاقتك وظروفك من نصف حزب إلى 5 أحزاب، ويظهر الورد المحدد للتلاوة نظرًا في ورد اليوم، وينتقل تلقائيا للتالي في اليوم الموالي. وتُحسب مدته على أساس أن كل حزب يستغرق تقريباً 15 دقيقة.</div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
       <span style="font-size:14px;font-weight:700;">تفعيل ورد التلاوة</span>
       <button id="tilawa-toggle-btn" onclick="toggleTilawaOn()" style="padding:6px 16px;border-radius:20px;border:2px solid #2dd4bf;background:transparent;color:#2dd4bf;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">متوقف</button>
@@ -3496,8 +3497,22 @@ function getArba3ByNums(nums) {
 // RENDER TODAY
 // ============================================================
 // اقتراح حفظ ربع جديد في ورد اليوم حين لا يوجد ربع محدد للحفظ (حتى لا يكون الورد مراجعة فقط)
+// الوضع اليدوي: أتمّ المستخدم ربعاً اليوم ولم يحدّد الربع التالي بعد
+function memManualDoneToday() {
+  return state.memTransitionMode === 'manual' && !state.curMemQuarter && !state.hifzCompleted
+    && !state.memNextOn && state.memDoneOn === todayStr()
+    && (state.memDoneDay == null || (state.currentDay || 1) <= state.memDoneDay);   // ينتهي بمرور اليوم الفعلي أو بالانتقال ليوم تالٍ في الدورة
+}
+function buildMemManualDoneHtml() {
+  return `<div style="background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.35);border-radius:14px;padding:12px 16px;margin:4px 0 8px;text-align:center;">
+      <div style="font-size:13px;font-weight:700;color:#8ecbff;line-height:1.6;">✅ تم حفظ الربع كاملاً، بارك الله فيك</div>
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.8;">ثبّته بالتكرار اليوم، وحدّد الجديد غداً أو الآن إن شئت</div>
+      <button class="done-btn" style="margin:6px 0 0;padding:7px 16px;font-size:13px;" onclick="showPage('memquarter')">🎯 حدّده الآن</button>
+    </div>`;
+}
 function buildMemSuggestHtml() {
   if (state.curMemQuarter || state.hifzCompleted) return '';
+  if (memManualDoneToday()) return '';
   if (state.memNextOn) return '';                       // الربع التالي في الانتظار (تظهر له بطاقته)
   if ((state.memorized || []).length >= 240) return '';
   return `<div style="background:rgba(96,165,250,0.08);border:1px dashed rgba(96,165,250,0.5);border-radius:12px;padding:12px 14px;margin:8px 0 12px;text-align:center;">
@@ -3765,6 +3780,7 @@ function renderToday() {
       <button class="done-btn" style="margin:6px 0 0;padding:6px 12px;font-size:12px;background:transparent;border:1px solid #60a5fa;color:#60a5fa;" onclick="showNextMemQuarterNow()">أظهر الربع التالي الآن</button>
     </div>`;
   }
+  if (memManualDoneToday()) html += buildMemManualDoneHtml();
   if (state.curMemQuarter) {
     checkMemQuarterAutoAdvance();
   }
@@ -3801,12 +3817,6 @@ function renderToday() {
 
     html += `<span class="wird-count-badge">${arba3All.length} أرباع${rasikhCount ? ' · ' + rasikhCount + ' راسخ' : ''} · ${strongCount} متين · ${weakCount} ضعيف${newCount ? ' · ' + newCount + ' جديد' : ''}</span>`;
 
-    if (weakCount >= 4) {
-      html += `
-        <div style="background:#2a1a00;border:1px solid #c9a227;border-radius:10px;padding:12px 14px;margin:8px 0;font-size:13px;color:#e8c547;line-height:1.7;">
-          ⚠️ أرباع ضعيفة كثيرة في وردك، عدّل أيام الدورة أو راجع تصنيفاتك، وما زاد عن طاقتك فأخّره لدورة قادمة.
-        </div>`;
-    }
 
     // يبني قائمة واحدة متتابعة بترتيب المصحف (جزء ← حزب ← ربع)، وكل ربع يحمل شارة تصنيفه الخاصة
     // (راسخ/متين/ضعيف/جديد) — تُستخدم لكل من قسم "الورد الفعلي" وقسم "الورد التكراري" بنفس الطريقة
@@ -4181,6 +4191,7 @@ function onMemQuarterFullDoneFromToday() {
     state.memNextOn = null;
   } else if (state.memTransitionMode === 'manual') {
     state.memNextOn = null;
+    state.memDoneOn = todayStr(); state.memDoneDay = state.currentDay || 1;   // اليدوي: تهنئة + «حدّده الآن» اليوم، ثم «لم تحدّد ربعاً جديداً» من الغد
   } else {
     const t = new Date();
     t.setDate(t.getDate() + 1);
@@ -4191,7 +4202,7 @@ function onMemQuarterFullDoneFromToday() {
   renderMemQuarterBanner();
   renderToday();
   if (noMore) showToast('أحسنت! أتممت حفظ كل الأرباع 🎉');
-  else if (state.memTransitionMode === 'manual') showToast('أحسنت! اختر ربعاً جديداً من قسم «أحفظ الآن» 🌱');
+  else if (state.memTransitionMode === 'manual') showToast('بارك الله فيك! حدّد الربع الجديد الآن 🌱');
   else showToast('أحسنت! يظهر الربع التالي غداً بإذن الله 🌱');
 }
 
@@ -5184,8 +5195,9 @@ function completeMemQuarterAndAdvance(isAuto) {
   if (state.memTransitionMode === 'manual') {
     state.curMemQuarter = null;
     state.curMemQuarterDate = null;
+    state.memDoneOn = todayStr(); state.memDoneDay = state.currentDay || 1;
     saveState();
-    showToast('أحسنت! اختر الربع الموالي 🌱');
+    showToast('بارك الله فيك! حدّد الربع الجديد الآن 🌱');
     return;
   }
   const next = fullPlanNextUnmemorized();
@@ -5419,13 +5431,13 @@ function updateTilawaSettingsUI() {
   }
 }
 
-// مدة مراجعة الربع الواحد بالدقائق (5–20، الافتراضي 10)
+// مدة مراجعة الربع الواحد بالدقائق (2–20، الافتراضي 8)
 function getReviewMin() {
   const v = Math.round(Number(state.reviewMinPerQuarter));
-  return (v >= 5 && v <= 20) ? v : 10;
+  return (v >= 2 && v <= 20) ? v : 8;
 }
 function changeReviewMin(delta) {
-  state.reviewMinPerQuarter = Math.max(5, Math.min(20, getReviewMin() + delta));
+  state.reviewMinPerQuarter = Math.max(2, Math.min(20, getReviewMin() + delta));
   const el = document.getElementById('review-min-val');
   if (el) el.value = state.reviewMinPerQuarter;
   saveState();
@@ -5435,9 +5447,9 @@ function changeReviewMin(delta) {
 function reviewMinInputChanged(el, final) {
   const v = parseInt(el.value, 10);
   if (final) {
-    state.reviewMinPerQuarter = isNaN(v) ? getReviewMin() : Math.max(5, Math.min(20, v));
+    state.reviewMinPerQuarter = isNaN(v) ? 8 : Math.max(2, Math.min(20, v));
     el.value = state.reviewMinPerQuarter;
-  } else if (!isNaN(v) && v >= 5 && v <= 20) {
+  } else if (!isNaN(v) && v >= 2 && v <= 20) {
     state.reviewMinPerQuarter = v;
   } else {
     return;
@@ -5445,10 +5457,10 @@ function reviewMinInputChanged(el, final) {
   saveState();
   try { updateHomeTodayCard(); } catch (e) {}
 }
-// مدة حفظ الربع الجديد بالدقائق (10–120، الافتراضي 30)
+// مدة حفظ الربع الجديد بالدقائق (10–120، الافتراضي 25)
 function getMemMin() {
   const v = Math.round(Number(state.memMinPerQuarter));
-  return (v >= 10 && v <= 120) ? v : 30;
+  return (v >= 10 && v <= 120) ? v : 25;
 }
 function changeMemMin(delta) {
   state.memMinPerQuarter = Math.max(10, Math.min(120, getMemMin() + delta));
@@ -5460,7 +5472,7 @@ function changeMemMin(delta) {
 function memMinInputChanged(el, final) {
   const v = parseInt(el.value, 10);
   if (final) {
-    state.memMinPerQuarter = isNaN(v) ? getMemMin() : Math.max(10, Math.min(120, v));
+    state.memMinPerQuarter = isNaN(v) ? 25 : Math.max(10, Math.min(120, v));
     el.value = state.memMinPerQuarter;
   } else if (!isNaN(v) && v >= 10 && v <= 120) {
     state.memMinPerQuarter = v;
@@ -5501,7 +5513,63 @@ function homeNextDayDetails(day, totalDays) {
   if (!parts.length) return '';
   return 'اليوم ' + day + ' من ' + totalDays + ': ' + parts.join(' + ') + (min > 0 ? ' · ⏱️ نحو ' + formatMinutes(min) : '');
 }
+// عبارة تحفيزية في الواجهة (نسخة من قائمة صفحة الورد، وتختار العبارة نفسها المعروضة هناك)
+const HOME_MOTIVATIONAL = [
+    "المراجعة حياة حفظك، إن أهملتها مات حفظك 📖",
+    "لا تؤجل ورد مراجعتك وإلا ستضيع جهدك ⏳",
+    "لا تكن كالتي نقضت غزلها من بعد قوة أنكاثاً، حافظ على ما بنيت 🧵",
+    "قوِّ عزيمتك واستعن بالله، فهو وحده المعين ✨",
+    "كل ربع تراجعه اليوم هو استثمار لآخرتك، فحامل القرآن يُلبس والديه تاج الوقار فكيف يكون جزاؤه هو 🌟",
+    "من واظب على مراجعته لم يضع حفظه بإذن الله 💪",
+    "الرسول ﷺ اشتكى لربنا هجران قومه للقرآن، فلا تهجره 🤲",
+    "خير جليس هو كتاب الله، فلا تفارقه يوماً 📗",
+    "الثبات على المراجعة أصعب من الحفظ، فكن من الثابتين 🏆",
+    "يوم بلا مراجعة يُضعف ما بنيته، فاحرص اليوم 🔥",
+    "تذكر كم أتعبت نفسك في الحفظ، لا تضيعه بالإهمال 💎",
+    "اجعل القرآن أنيسك كل يوم، وستجد البركة في وقتك 🌙",
+    "مراجعة اليوم تحمي حفظ الأمس وتُمهد لحفظ الغد 🌅",
+    "إن ثقل عليك الورد فتذكر ثقل الميزان يوم القيامة ⚖️",
+    "كل حرف تراجعه نور يزيد في صحيفتك 💡",
+    "حامل القرآن له شرف عظيم عند الله إذا حفظه وعمل به، فكن أهلاً لهذا الشرف 👑",
+    "لو علمت ما يُكتب لك بكل ربع تراجعه ما تركت يوماً 📜",
+    "الشجرة تحتاج سقياً يومياً وإلا ذبلت، وحفظك كذلك 🌿",
+    "ابدأ ورد اليوم ولو بنفس ثقيل، فالبركة في البداية 🚀",
+    "إن فاتك ورد أمس فلا تجعل يومين يفوتان، بادر الآن ⚡",
+    "أهل القرآن هم أهل الله وخاصته، فاثبت في زمرتهم 🕌",
+    "أكرمك الله بحفظ كتابه، فأكرم نفسك بمراجعته 🌠",
+    "يقال لصاحب القرآن في الآخرة: اقرأ وارقَ ورتّل كما كنت ترتّل في الدنيا... فاجعل محفوظك اليوم أقوى مما كان بالأمس 📿",
+    "لا تغتر بحفظك اليوم، فالنسيان عدو لا يهدأ، راجع دائماً 🛡️",
+    "تعاهد القرآن فهذه وصية نبينا محمد ﷺ، فلا تضيع وصيته 🤝",
+    "كلما فكرت في التأجيل تذكر أن الفرصة لا تعود كما كانت ⏰",
+    "اجعل ورد مراجعتك أولى أولوياتك لتنتظم حياتك، القرآن بركة لك 🤍",
+    "النجوم لا تضيء إلا في الظلام، وأنت تضيء حين تتلو كلام الله ⭐",
+    "لن يسألك الله عن سبب الحفظ، لكنه سيسألك عن سبب النسيان 🔔",
+    "الفضل ليس في بدء الحفظ، بل في ثبات الحفظ في القلب حتى تلقى الله، فلا تتساهل في مراجعته كي لا تعود لنقطة الصفر 🎯",
+  ];
+function updateHomeMotivation() {
+  const box = document.getElementById('home-motivation');
+  const txt = document.getElementById('home-motivation-text');
+  if (!box || !txt) return;
+  let day = null;
+  try {
+    if (state.wirdMode !== 'fami' && state.wirdMode !== 'khatm15' && state.memorized && state.memorized.length) {
+      ensureCycleStart();
+      day = getCurrentCycleDay().dayInCycle;
+    }
+  } catch (e) {}
+  if (!day) day = Math.floor(Date.now() / 86400000) + 1;
+  const a = [...HOME_MOTIVATIONAL];
+  let sd = (state.cycleCount || 0) + 1;
+  for (let i = a.length - 1; i > 0; i--) {
+    sd = (sd * 1664525 + 1013904223) & 0xffffffff;
+    const r = Math.abs(sd) % (i + 1);
+    [a[i], a[r]] = [a[r], a[i]];
+  }
+  txt.textContent = a[(day - 1) % a.length];
+  box.style.display = '';
+}
 function updateHomeTodayCard() {
+  try { updateHomeMotivation(); } catch (e) {}
   const card = document.querySelector('.home-card-today');
   const titleEl = document.getElementById('home-today-title');
   const descEl = document.getElementById('home-today-desc');
@@ -5628,6 +5696,8 @@ function updateMemNowCardDesc() {
     t = q ? 'الربع ' + q.n + ' — ' + q.name : t;
   } else if (state.memNextOn && !state.hifzCompleted) {
     t = 'تم الحفظ — يظهر الربع التالي غداً بإذن الله';
+  } else if (memManualDoneToday()) {
+    t = 'تم الحفظ، بارك الله فيك — حدّد الربع التالي';
   } else if (state.hifzCompleted) {
     t = 'أتممت حفظ القرآن الكريم 🎉';
   }
@@ -5668,6 +5738,14 @@ function renderMemQuarterBanner() {
       <div style="font-size:13px;color:#8ecbff;font-weight:700;line-height:1.5;">🎉 مبارك! لقد أنهيت حفظ القرآن الكريم</div>
       <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">هل تريد إعادة حفظ ربع ما؟ وحافظ عليه بالمراجعة الدورية ولا تنسَ الاستغفار</div>
       <button class="done-btn" style="margin:4px 0 0;padding:5px 12px;font-size:12px;background:transparent;border:1px solid #60a5fa;color:#60a5fa;" onclick="state.hifzCompleted=false;saveState();showPage('memquarter')">اختيار ربع لإعادة حفظه</button>
+    `;
+    return;
+  }
+  if (memManualDoneToday()) {
+    el.style.display = 'flex';
+    el.innerHTML = `
+      <div style="font-size:13px;color:#8ecbff;font-weight:700;line-height:1.5;">✅ تم حفظ الربع كاملاً، بارك الله فيك</div>
+      <button class="done-btn" style="margin:4px 0 0;padding:8px 16px;font-size:13px;" onclick="showPage('memquarter')">🎯 حدّده الآن</button>
     `;
     return;
   }

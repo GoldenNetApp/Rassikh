@@ -5550,6 +5550,14 @@ function updateHomeMotivation() {
   const box = document.getElementById('home-motivation');
   const txt = document.getElementById('home-motivation-text');
   if (!box || !txt) return;
+  // أول استخدام (لم يسجّل المستخدم أي ربع محفوظ بعد): تظهر هذه العبارة أولاً
+  let firstUse = false;
+  try { firstUse = !(state.memorized && state.memorized.length); } catch (e) { firstUse = false; }
+  if (firstUse) {
+    txt.textContent = 'كل يوم تؤجّل فيه يضيع ولا يعود، فابدأ الآن ولو بالقليل ⏰';
+    box.style.display = '';
+    return;
+  }
   let day = null;
   try {
     if (state.wirdMode !== 'fami' && state.wirdMode !== 'khatm15' && state.memorized && state.memorized.length) {

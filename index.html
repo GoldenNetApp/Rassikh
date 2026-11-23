@@ -1163,6 +1163,10 @@
       <span><strong>الحفظ الجديد</strong> — ما حفظته مؤخراً ويُراجَع 7 أيام متتالية، ثم ينتقل تلقائياً إلى <strong>حفظ راسخ</strong></span>
     </div>
   </div>
+  <div style="margin:10px 0 8px;position:relative;">
+    <input id="quran-search" type="search" inputmode="search" placeholder="🔍 ابحث برقم الربع أو الصفحة أو السورة أو الآية…" oninput="applyQuranFilter()" style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:12px;border:1px solid var(--border,rgba(255,255,255,0.15));background:var(--card,#141a24);color:inherit;font-size:14px;font-family:'Tajawal',sans-serif;direction:rtl;">
+    <div id="quran-search-empty" style="display:none;text-align:center;color:var(--text-muted);font-size:13px;padding:14px 0;">لا توجد نتائج مطابقة</div>
+  </div>
   <div class="juz-list" id="juz-list"></div>
 </div>
 
@@ -3338,6 +3342,62 @@ function ensureLevelTimestamps() {
 // ============================================================
 // SCHEDULE COMPUTATION
 // ============================================================
+// ===== الأرباع الراسخة: لكل ربع راسخ يوم ثابت في الدورة (state.rasikhDay) لا يتغير بتغيّر أرباع غيره =====
+function getRasikhList() {
+  const newMap = state.newArba3 || {};
+  return (state.memorized || [])
+    .filter(n => !newMap[n] && ((state.levels || {})[n] || 'strong') === 'rasikh')
+    .sort((a, b) => a - b);
+}
+// entryDay = اليوم الذي حدث فيه التغيير؛ يُوضع الربع الداخل من اليوم التالي فصاعداً
+function syncRasikhDays(R, entryDay) {
+  const days = state.days;
+  if (!days || days <= 0) return;
+  const marker = (state.cycleCount || 0) + '|' + days;
+  let changed = false;
+  if (!state.rasikhDay || state.rasikhDayMarker !== marker) {
+    // بداية دورة (أو أول تشغيل): توزيع متساوٍ على أيام الدورة مرة واحدة ثم يُحفظ
+    const map = {};
+    const perDay = Math.floor(R.length / days);
+    const extra = R.length % days;
+    let idx = 0;
+    for (let d = 0; d < days; d++) {
+      const count = perDay + (d < extra ? 1 : 0);
+      R.slice(idx, idx + count).forEach(n => { map[n] = d + 1; });
+      idx += count;
+    }
+    state.rasikhDay = map;
+    state.rasikhDayMarker = marker;
+    changed = true;
+  } else {
+    const map = state.rasikhDay;
+    const rset = new Set(R);
+    // ربع خرج من الراسخ: يُترك مكانه فارغاً ولا يتحرك غيره
+    Object.keys(map).forEach(k => { if (!rset.has(Number(k))) { delete map[k]; changed = true; } });
+    // ربع دخل في الراسخ: يوضع من اليوم التالي في أول يوم عدد أرباعه دون المتوسط
+    const missing = R.filter(n => map[n] === undefined);
+    if (missing.length) {
+      const counts = new Array(days + 2).fill(0);
+      Object.keys(map).forEach(k => { const d = map[k]; if (d >= 1 && d <= days) counts[d]++; });
+      const target = Math.ceil(R.length / days);
+      const first = (entryDay || state.currentDay || 1) + 1;
+      missing.forEach(n => {
+        if (first > days) return;   // آخر الدورة: يدخل في توزيع الدورة القادمة
+        let pick = -1;
+        for (let d = first; d <= days; d++) { if (counts[d] < target) { pick = d; break; } }
+        if (pick < 0) {
+          pick = first;
+          for (let d = first; d <= days; d++) { if (counts[d] < counts[pick]) pick = d; }
+        }
+        map[n] = pick; counts[pick]++; changed = true;
+      });
+    }
+  }
+  if (changed) saveState();
+}
+function syncRasikhDaysNow() {
+  try { syncRasikhDays(getRasikhList(), state.currentDay || 1); } catch (e) {}
+}
 function getSchedule() {
   ensureLevelTimestamps();
   const newMap = state.newArba3 || {};
@@ -3357,22 +3417,18 @@ function getSchedule() {
     schedule.push({ day: d, arba3: [], primary: [], repeat: [], rest: d > state.days, dayInBlock: {}, blockSizeOf: {} });
   }
 
-  // راسخ: مرة واحدة فقط خلال الدورة، موزّع بالتساوي على الأيام (لا حاجة لتاريخ دقيق لأنه مرة واحدة فقط)
+  // راسخ: مرة واحدة فقط خلال الدورة، في يومه الثابت المحفوظ (state.rasikhDay)
   if (rasikh.length && state.days > 0) {
-    const cycleLen = state.days;
-    const perDay = Math.floor(rasikh.length / cycleLen);
-    const extra  = rasikh.length % cycleLen;
-    let idx = 0;
-    for (let d = 0; d < cycleLen; d++) {
-      const count = perDay + (d < extra ? 1 : 0);
-      rasikh.slice(idx, idx + count).forEach(n => {
-        schedule[d].arba3.push(n);
-        schedule[d].primary.push(n);
-        schedule[d].dayInBlock[n] = 1;
-        schedule[d].blockSizeOf[n] = 1;
-      });
-      idx += count;
-    }
+    syncRasikhDays(rasikh, state.currentDay || 1);
+    rasikh.forEach(n => {
+      const d = state.rasikhDay[n];
+      if (d >= 1 && d <= state.days) {
+        schedule[d - 1].arba3.push(n);
+        schedule[d - 1].primary.push(n);
+        schedule[d - 1].dayInBlock[n] = 1;
+        schedule[d - 1].blockSizeOf[n] = 1;
+      }
+    });
   }
 
   // يبني أيام ظهور ربع واحد بالمشي يومًا بيوم من تاريخ بدايته، متجاوزًا أي "يوم مؤجَّل" مسجَّل له
@@ -3908,7 +3964,7 @@ function renderToday() {
                   <div class="wird-page-link"><a class="quran-link" href="https://app.quranflash.com/book/Tajweed?ar#/reader/chapter/${a.page}" onclick="openExternal(this.href);return false;">📖 اقرأ الربع (بالانترنت)</a></div>
                   <div class="wird-page-info">صفحة ${a.page} ${lvlLabel}</div>
                   ${newProgress}
-                  ${isDone ? '' : `<button onclick="postponeItem(${a.n})" style="margin-top:6px;background:transparent;border:1px dashed rgba(255,255,255,0.25);color:var(--text-muted);font-size:11px;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:'Tajawal',sans-serif;">⏭️ تأجيل لِغد</button>`}
+                  ${isDone ? '' : `<div style="display:flex;gap:5px;flex-wrap:nowrap;align-items:center;margin-top:6px;"><button onclick="postponeItem(${a.n})" style="background:transparent;border:1px dashed rgba(255,255,255,0.25);color:var(--text-muted);font-size:10px;padding:3px 7px;border-radius:7px;cursor:pointer;font-family:'Tajawal',sans-serif;white-space:nowrap;">⏭️ تأجيل لِغد</button><button onclick="toggleTodayLevelPick(${a.n})" style="background:transparent;border:1px dashed rgba(255,255,255,0.25);color:var(--text-muted);font-size:10px;padding:3px 7px;border-radius:7px;cursor:pointer;font-family:'Tajawal',sans-serif;white-space:nowrap;">🎚️ المستوى</button></div><div id="lvl-pick-${a.n}" style="display:none;gap:5px;flex-wrap:wrap;margin-top:6px;"><button onclick="setLevelFromToday(${a.n},'rasikh')" style="background:transparent;border:1px dashed rgba(255,255,255,0.25);color:var(--text-muted);font-size:10px;padding:3px 7px;border-radius:7px;cursor:pointer;font-family:'Tajawal',sans-serif;white-space:nowrap;${lvl==='rasikh' ? 'border-style:solid;border-color:var(--gold);color:var(--gold);' : ''}">🥇 راسخ</button><button onclick="setLevelFromToday(${a.n},'strong')" style="background:transparent;border:1px dashed rgba(255,255,255,0.25);color:var(--text-muted);font-size:10px;padding:3px 7px;border-radius:7px;cursor:pointer;font-family:'Tajawal',sans-serif;white-space:nowrap;${lvl==='strong' ? 'border-style:solid;border-color:var(--gold);color:var(--gold);' : ''}">✦ متين</button><button onclick="setLevelFromToday(${a.n},'weak')" style="background:transparent;border:1px dashed rgba(255,255,255,0.25);color:var(--text-muted);font-size:10px;padding:3px 7px;border-radius:7px;cursor:pointer;font-family:'Tajawal',sans-serif;white-space:nowrap;${lvl==='weak' ? 'border-style:solid;border-color:var(--gold);color:var(--gold);' : ''}">⚠ ضعيف</button><button onclick="setLevelFromToday(${a.n},'new')" style="background:transparent;border:1px dashed rgba(255,255,255,0.25);color:var(--text-muted);font-size:10px;padding:3px 7px;border-radius:7px;cursor:pointer;font-family:'Tajawal',sans-serif;white-space:nowrap;${lvl==='new' ? 'border-style:solid;border-color:var(--gold);color:var(--gold);' : ''}">✨ جديد</button></div>`}
                 </div>
               </div>`;
           });
@@ -4469,6 +4525,7 @@ function markDone() {
       if (arba) promotedNames.push(arba.name + ' (إلى راسخ)');
     }
   });
+  syncRasikhDaysNow();   // الأرباع المترقّية إلى راسخ تُوضع من اليوم التالي
   state.currentDay = today + 1;
   state.itemsDoneToday = {};
   saveState();
@@ -4710,6 +4767,94 @@ function renderQuran() {
   });
 }
 
+// ورد اليوم: إظهار/إخفاء خيارات مستوى الربع في نفس القسم
+function toggleTodayLevelPick(n) {
+  const el = document.getElementById('lvl-pick-' + n);
+  if (el) el.style.display = (el.style.display === 'none' || !el.style.display) ? 'flex' : 'none';
+}
+// تغيير المستوى من ورد اليوم (يظهر في قائمة الأرباع أيضاً، وورد اليوم يبقى ثابتاً)
+function setLevelFromToday(n, lvl) {
+  const y = window.scrollY;
+  const snap = {};
+  document.querySelectorAll('#page-today .collapse-body[id]').forEach(function (b) { snap[b.id] = b.classList.contains('open'); });
+  const pickOpen = {};
+  document.querySelectorAll('#page-today [id^="lvl-pick-"]').forEach(function (p) { pickOpen[p.id] = p.style.display === 'flex'; });
+  setLevel(n, lvl);
+  try { renderToday(); } catch (e) {}
+  Object.keys(snap).forEach(function (id) {
+    const b = document.getElementById(id);
+    if (!b) return;
+    b.classList.toggle('open', snap[id]);
+    const h = b.previousElementSibling;
+    const ar = h && h.querySelector ? h.querySelector('.juz-arrow') : null;
+    if (ar) ar.classList.toggle('open', snap[id]);
+  });
+  Object.keys(pickOpen).forEach(function (id) {
+    const p = document.getElementById(id);
+    if (p && pickOpen[id] && id !== 'lvl-pick-' + n) p.style.display = 'flex';
+  });
+  window.scrollTo(0, y);
+}
+
+// ===== البحث في قائمة الأرباع =====
+let _qSearchOpened = new Set();
+function _qNorm(t) {
+  return (t || '').toString()
+    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g, '')
+    .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
+    .replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 1632); })
+    .replace(/\s+/g, ' ').trim().toLowerCase();
+}
+function applyQuranFilter() {
+  const inp = document.getElementById('quran-search');
+  const list = document.getElementById('juz-list');
+  if (!inp || !list) return;
+  const q = _qNorm(inp.value);
+  const empty = document.getElementById('quran-search-empty');
+  let any = false;
+  list.querySelectorAll('.juz-block').forEach(function (jb) {
+    const jn = parseInt(jb.id.replace('juz-', ''), 10);
+    let juzHas = false;
+    jb.querySelectorAll('.hizb-block').forEach(function (hb) {
+      let hizbHas = false;
+      hb.querySelectorAll('.rub-row').forEach(function (row) {
+        let ok = true;
+        if (q) {
+          const parts = ['.rub-label', '.rub-name', '.rub-surah'].map(function (sel) {
+            const e = row.querySelector(sel); return e ? e.textContent : '';
+          }).join(' ');
+          ok = _qNorm(parts).includes(q);
+        }
+        row.style.display = ok ? '' : 'none';
+        if (ok) hizbHas = true;
+      });
+      hb.style.display = hizbHas ? '' : 'none';
+      if (hizbHas) juzHas = true;
+    });
+    jb.style.display = juzHas ? '' : 'none';
+    if (juzHas) any = true;
+    const body = document.getElementById('body-' + jn);
+    const arrow = document.getElementById('arrow-' + jn);
+    if (q && juzHas && body && !body.classList.contains('open')) {
+      body.classList.add('open'); if (arrow) arrow.classList.add('open'); _qSearchOpened.add(jn);
+    }
+    if (!q && _qSearchOpened.has(jn) && body) {
+      body.classList.remove('open'); if (arrow) arrow.classList.remove('open');
+    }
+  });
+  if (!q) _qSearchOpened = new Set();
+  if (empty) empty.style.display = (q && !any) ? 'block' : 'none';
+}
+// إعادة تطبيق البحث بعد كل إعادة رسم للقائمة (تغيير مستوى أو تحديد ربع)
+(function () {
+  const _orig = renderQuran;
+  renderQuran = function () {
+    const r0 = _orig.apply(this, arguments);
+    try { applyQuranFilter(); } catch (e) {}
+    return r0;
+  };
+})();
+
 function toggleJuz(j) {
   const body = document.getElementById('body-'+j);
   const arrow = document.getElementById('arrow-'+j);
@@ -4835,6 +4980,7 @@ function setLevel(n, lvl) {
       delete state.strongArba3[n];
     }
   }
+  syncRasikhDaysNow();   // يوم ثابت للراسخ: الداخل يُوضع من الغد، والخارج يُترك مكانه فارغاً
   saveState();
   renderQuran();
 }
@@ -4885,6 +5031,7 @@ function changeSetting(key, delta) {
 }
 
 function saveSettings() {
+  state.rasikhDay = null;   // إعادة التوزيع: يُعاد توزيع الراسخ على الأيام
   state.currentDay = 1;
   state.completedDays = {};
   saveState();
@@ -7753,7 +7900,7 @@ function showPage(name) {
   if (name === 'settings') renderSettings();
   if (name === 'schedule') renderSchedule();
   if (name === 'practical') showPractical(1);
-  if (name === 'tasmee') renderTasmeeIntro();
+  if (name === 'tasmee') { renderTasmeeIntro(); maybeShowTasmeeMuteNotice(); }
   if (name === 'quiz') renderQuizIntro();
   if (name === 'memnow') { renderMemQuarterBanner(); renderMemQuarterList(); }
   if (name === 'fullplan') { renderFullPlanSettings(); renderFullPlan(); }
@@ -7784,16 +7931,20 @@ function showHome() {
 window.addEventListener('load', function() {
   history.replaceState({ page: 'home' }, '');
   history.pushState({ page: 'guard' }, '');
-
-  // تنبيه المستخدم مرة واحدة فقط (أول تشغيل) أن صوت الإشعارات يُكتم مؤقتاً
-  // أثناء التسميع لتفادي بيب التعرف الصوتي، حتى لا يفاجأ أو يحاول إرجاعه يدويًا
-  if (window.TsmAudioMute && !localStorage.getItem('tsm_mute_notice_shown')) {
-    setTimeout(() => {
-      showLongToast('🔔 أثناء التسميع، يُكتم صوت الإشعارات مؤقتاً تلقائياً لتفادي بيب التسجيل', 5000);
-    }, 1200);
-    localStorage.setItem('tsm_mute_notice_shown', '1');
-  }
 });
+
+// تنبيه المستخدم مرة واحدة فقط، عند أول دخول لقسم التسميع، أن صوت الإشعارات يُكتم مؤقتاً
+// أثناء التسميع لتفادي بيب التعرف الصوتي، حتى لا يفاجأ أو يحاول إرجاعه يدويًا
+function maybeShowTasmeeMuteNotice() {
+  try {
+    if (window.TsmAudioMute && !localStorage.getItem('tsm_mute_notice_shown')) {
+      setTimeout(() => {
+        showLongToast('🔔 أثناء التسميع، يُكتم صوت الإشعارات مؤقتاً تلقائياً لتفادي بيب التسجيل', 5000);
+      }, 600);
+      localStorage.setItem('tsm_mute_notice_shown', '1');
+    }
+  } catch (e) {}
+}
 
 // Intercept the hardware / browser back button
 window.addEventListener('popstate', function(e) {

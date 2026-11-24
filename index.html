@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<script src="cordova.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d1117">
+<link rel="icon" href="icon-192x192.png">
+<link rel="apple-touch-icon" href="icon-192x192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>راسخ</title>
 <style>
 @font-face {
@@ -9725,6 +9730,34 @@ window.addEventListener('load', function () {
   window.addEventListener('resize', update);
   setInterval(update, 600); // يلتقط تغيّر الصفحات وطول المحتوى
   update();
+})();
+</script>
+
+<style>
+#pwaBar{position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;display:none;align-items:center;gap:10px;
+background:#161b22;border:1px solid #c9a227;border-radius:16px;padding:10px 12px;box-shadow:0 6px 24px rgba(0,0,0,.5);direction:rtl;font-family:'Amiri',serif;color:#e8c547}
+#pwaBar span{flex:1;font-size:16px}
+#pwaBar button{border:0;border-radius:12px;padding:9px 18px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer}
+#pwaInstall{background:#c9a227;color:#0d1117}
+#pwaClose{background:transparent;color:#8b949e;font-size:20px;padding:4px 10px!important}
+</style>
+<div id="pwaBar"><span id="pwaMsg">ثبّت «راسخ» على شاشتك الرئيسية</span><button id="pwaInstall">تثبيت</button><button id="pwaClose" aria-label="إغلاق">✕</button></div>
+<script>
+(function(){
+  var bar=document.getElementById('pwaBar'),msg=document.getElementById('pwaMsg'),btn=document.getElementById('pwaInstall'),dp=null;
+  var standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  if('serviceWorker' in navigator&&location.protocol!=='file:'){navigator.serviceWorker.register('sw.js').catch(function(){});}
+  document.getElementById('pwaClose').onclick=function(){bar.style.display='none';try{sessionStorage.setItem('pwaHide','1')}catch(e){}};
+  var hidden=false;try{hidden=sessionStorage.getItem('pwaHide')==='1'}catch(e){}
+  if(standalone||hidden)return;
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;bar.style.display='flex';});
+  window.addEventListener('appinstalled',function(){bar.style.display='none';});
+  btn.onclick=function(){
+    if(dp){dp.prompt();dp.userChoice.then(function(){dp=null;bar.style.display='none';});}
+    else{msg.textContent='من قائمة المتصفح اختر «إضافة إلى الشاشة الرئيسية»';btn.style.display='none';}
+  };
+  var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(ios){msg.textContent='للتثبيت: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»';btn.style.display='none';bar.style.display='flex';}
 })();
 </script>
 </body>

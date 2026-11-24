@@ -9740,8 +9740,38 @@ background:#161b22;border:1px solid #c9a227;border-radius:16px;padding:10px 12px
 #pwaBar button{border:0;border-radius:12px;padding:9px 18px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer}
 #pwaInstall{background:#c9a227;color:#0d1117}
 #pwaClose{background:transparent;color:#8b949e;font-size:20px;padding:4px 10px!important}
+#pwaNote{position:fixed;left:12px;right:12px;bottom:12px;z-index:99998;display:none;align-items:center;gap:8px;background:rgba(22,27,34,.96);border:1px solid #3fb950;border-radius:12px;padding:7px 10px;direction:rtl;font-family:'Amiri',serif;color:#3fb950;font-size:12.5px;line-height:1.7;box-shadow:0 4px 16px rgba(0,0,0,.45)}
+#pwaNote span{flex:1}
+#pwaNote button{border:0;background:transparent;color:#3fb950;font-family:inherit;cursor:pointer}
+#pwaNoteCopy{border:1px solid #3fb950!important;border-radius:8px;padding:2px 10px;font-size:12px;font-weight:700}
+#pwaNoteClose{color:#8b949e!important;font-size:16px;padding:0 4px}
 </style>
 <div id="pwaBar"><span id="pwaMsg">ثبّت «راسخ» على شاشتك الرئيسية</span><button id="pwaInstall">تثبيت</button><button id="pwaClose" aria-label="إغلاق">✕</button></div>
+<div id="pwaNote"><span>إن لم يظهر لك زر «تثبيت» هنا في الأسفل، فانسخ الرابط وافتحه في Chrome</span><button id="pwaNoteCopy">فتح في Chrome</button><button id="pwaNoteClose" aria-label="إغلاق">✕</button></div>
+<script>
+(function(){
+  var note=document.getElementById('pwaNote'),bar=document.getElementById('pwaBar');
+  var standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  var hidden=false;try{hidden=sessionStorage.getItem('pwaNoteHide')==='1'}catch(e){}
+  var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(standalone||hidden||ios)return;
+  var done=false;
+  window.addEventListener('beforeinstallprompt',function(){done=true;note.style.display='none';});
+  window.addEventListener('appinstalled',function(){done=true;note.style.display='none';});
+  document.getElementById('pwaNoteClose').onclick=function(){note.style.display='none';try{sessionStorage.setItem('pwaNoteHide','1')}catch(e){}};
+  document.getElementById('pwaNoteCopy').onclick=function(){
+    var u=location.href.split('#')[0],android=/android/i.test(navigator.userAgent);
+    if(android){
+      var x=u.replace(/^https?:\/\//,''),sch=location.protocol.replace(':','');
+      location.href='intent://'+x+'#Intent;scheme='+sch+';package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(u)+';end';
+    }else{
+      try{navigator.clipboard.writeText(u).then(function(){alert('تم نسخ الرابط، افتحه في Chrome')}).catch(function(){prompt('انسخ الرابط وافتحه في Chrome:',u)});}
+      catch(e){prompt('انسخ الرابط وافتحه في Chrome:',u);}
+    }
+  };
+  setTimeout(function(){if(!done&&bar.style.display!=='flex'){note.style.display='flex';}},2500);
+})();
+</script>
 <script>
 (function(){
   var bar=document.getElementById('pwaBar'),msg=document.getElementById('pwaMsg'),btn=document.getElementById('pwaInstall'),dp=null;

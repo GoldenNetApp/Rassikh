@@ -9740,7 +9740,9 @@ background:#161b22;border:1px solid #c9a227;border-radius:16px;padding:10px 12px
 #pwaBar button{border:0;border-radius:12px;padding:9px 18px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer}
 #pwaInstall{background:#c9a227;color:#0d1117}
 #pwaClose{background:transparent;color:#8b949e;font-size:20px;padding:4px 10px!important}
+#pwaNote{position:fixed;left:12px;right:12px;bottom:12px;z-index:99998;display:none;background:#161b22;border:1px solid #30363d;border-radius:12px;padding:8px 12px;direction:rtl;font-family:'Amiri',serif;font-size:14px;color:#3fb950;text-align:center}
 </style>
+<div id="pwaNote">إن لم يظهر لك زر «تثبيت» هنا في الأسفل، فانسخ الرابط وافتحه في Chrome</div>
 <div id="pwaBar"><span id="pwaMsg">ثبّت «راسخ» على شاشتك الرئيسية</span><button id="pwaInstall">تثبيت</button><button id="pwaClose" aria-label="إغلاق">✕</button></div>
 <script>
 (function(){
@@ -9750,18 +9752,14 @@ background:#161b22;border:1px solid #c9a227;border-radius:16px;padding:10px 12px
   document.getElementById('pwaClose').onclick=function(){bar.style.display='none';try{sessionStorage.setItem('pwaHide','1')}catch(e){}};
   var hidden=false;try{hidden=sessionStorage.getItem('pwaHide')==='1'}catch(e){}
   if(standalone||hidden)return;
-  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;bar.style.display='flex';});
+  var note=document.getElementById('pwaNote');
+  if(/android/i.test(navigator.userAgent)){note.style.display='block';setTimeout(function(){note.style.display='none';},15000);}
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;note.style.display='none';bar.style.display='flex';});
   window.addEventListener('appinstalled',function(){bar.style.display='none';});
   btn.onclick=function(){
     if(dp){dp.prompt();dp.userChoice.then(function(){dp=null;bar.style.display='none';});}
     else{msg.textContent='من قائمة المتصفح اختر «إضافة إلى الشاشة الرئيسية»';btn.style.display='none';}
   };
-  var inApp=/FBAN|FBAV|FB_IAB|Instagram|Messenger/i.test(navigator.userAgent)&&/android/i.test(navigator.userAgent);
-  if(inApp){
-    msg.textContent='لتثبيت التطبيق افتحه في Chrome';btn.textContent='فتح في Chrome';bar.style.display='flex';
-    btn.onclick=function(){location.href='intent://'+location.host+location.pathname+location.search+'#Intent;scheme=https;package=com.android.chrome;end';};
-    return;
-  }
   var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
   if(ios){msg.textContent='للتثبيت: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»';btn.style.display='none';bar.style.display='flex';}
 })();

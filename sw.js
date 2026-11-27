@@ -1,23 +1,22 @@
-var CACHE_NAME = 'rasikh-v1';
-var ASSETS = ['./index.html', './icon-192x192.png', './icon-512x512.png', './manifest.json'];
-
-self.addEventListener('install', function(event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(ASSETS);
-    })
+// يحدّث نفسه تلقائيًا: الشبكة أولًا، والمخزَّن عند انقطاع الإنترنت فقط.
+var CACHE_NAME = 'rasikh-auto';
+self.addEventListener('install', function () { self.skipWaiting(); });
+self.addEventListener('activate', function (e) {
+  e.waitUntil(
+    caches.keys().then(function (ks) {
+      return Promise.all(ks.filter(function (k) { return k !== CACHE_NAME; }).map(function (k) { return caches.delete(k); }));
+    }).then(function () { return self.clients.claim(); })
   );
-  self.skipWaiting();
 });
-
-self.addEventListener('activate', function(event) {
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    caches.match(event.request).then(function(response) {
-      return response || fetch(event.request);
+self.addEventListener('fetch', function (e) {
+  var r = e.request;
+  if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
+  e.respondWith(
+    fetch(r, { cache: 'no-cache' }).then(function (res) {
+      if (res && res.ok) { var c = res.clone(); caches.open(CACHE_NAME).then(function (ch) { ch.put(r, c); }); }
+      return res;
+    }).catch(function () {
+      return caches.match(r).then(function (m) { return m || caches.match('./index.html') || caches.match('./'); });
     })
   );
 });

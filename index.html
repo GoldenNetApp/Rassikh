@@ -9776,7 +9776,7 @@ background:#161b22;border:1px solid #c9a227;border-radius:16px;padding:10px 12px
 (function(){
   var bar=document.getElementById('pwaBar'),msg=document.getElementById('pwaMsg'),btn=document.getElementById('pwaInstall'),dp=null;
   var standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
-  if('serviceWorker' in navigator&&location.protocol!=='file:'){navigator.serviceWorker.register('sw.js').catch(function(){});}
+  if('serviceWorker' in navigator&&location.protocol!=='file:'){var had=!!navigator.serviceWorker.controller,rl=false;navigator.serviceWorker.addEventListener('controllerchange',function(){if(had&&!rl){rl=true;location.reload();}});navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(function(r){return r.update();}).catch(function(){});}
   document.getElementById('pwaClose').onclick=function(){bar.style.display='none';try{sessionStorage.setItem('pwaHide','1')}catch(e){}};
   var hidden=false;try{hidden=sessionStorage.getItem('pwaHide')==='1'}catch(e){}
   if(standalone||hidden)return;
